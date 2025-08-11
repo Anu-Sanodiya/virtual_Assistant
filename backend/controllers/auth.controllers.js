@@ -31,7 +31,7 @@ const signUp = async (req, res) => {
             sameSite: "strict",
             secure: false
         })
-        return res.status(201).json(User)
+        return res.status(201).json(newuser)
 
 
     } catch (error) {
@@ -42,11 +42,11 @@ const signUp = async (req, res) => {
 const Login = async (req, res) => {
     try {
         const { email, password } = req.body
-        const user = await user.findOne({ email })
+        const user = await User.findOne({ email })
         if (!user) {
             return res.status(400).json({ message: "Email does not exists!" })
         }
-        const isMatch = await bcrypt.compare(password, hashedPassword, user.password)
+        const isMatch = await bcrypt.compare(password, user.password)
 
         if (!isMatch) {
             return res.status(400).json({ message: "incorect password !" })

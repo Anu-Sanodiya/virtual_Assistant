@@ -16,9 +16,13 @@ const userSchema = new mongoose.Schema({
     assistantImage: {
         type: String,
     },
-    history: {
+    password:{
+        type:String,
+        required:true
+    },
+    history:[ {
         type: String,
-    }
+    }]
 }, { timestamps: true })
 
 const User =mongoose.model("User", userSchema)

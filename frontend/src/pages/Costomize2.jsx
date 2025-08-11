@@ -9,8 +9,10 @@ const Costomize2 = () => {
   const { userData, backendImage, selectedImage, setUserData, serverUrl, error } = useContext(UserDataContext)
   const [assistantName, setAssistantName] = useState(userData?.assistantName || " ")
   const [loading, setLoading] = useState(false)
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const handleUpdateAssistant = async () => {
+    setLoading(true)
     try {
       let formdata = new FormData(); // ✅
 
@@ -22,16 +24,19 @@ const navigate = useNavigate();
       }
       const result = await axios.post(`${serverUrl}/api/user/update`, formdata, { withCredentials: true })
       console.log(result.data)
+      setLoading(false)
       setUserData(result.data)
+      navigate('/')
     }
     catch (error) {
       console.log(error)
+      setLoading(false)
     }
   }
   return (
     <div className='w-full h-[100vh] bg-gradient-to-t from-[black] to-[#000080] flex flex-col justify-center items-center'>
-<IoIosArrowRoundBack className='absolute top-[30px] left-[30px] text-white w-[25px] h-[25px] text-bold '
-onClick={()=>navigate('/costomize')}/>
+      <IoIosArrowRoundBack className='absolute top-[30px] left-[30px] text-white w-[25px] h-[25px] text-bold '
+        onClick={() => navigate('/costomize')} />
       <h1 className='text-white text-2xl font-bold mb-8'>
         Enter your Assistant name
       </h1>
@@ -52,7 +57,7 @@ onClick={()=>navigate('/costomize')}/>
         className='min-w-[300px] h-[50px] mt-[30px] text-black font-semibold bg-white rounded-full text-[19px] 
         transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-95 cursor-pointer'
         disabled={loading}
-        onClick={()=>{handleUpdateAssistant()}}
+        onClick={() => { handleUpdateAssistant() }}
       >
         {!loading ? "Finally Create Your Assistant " : "Loading..."}
       </button>}
