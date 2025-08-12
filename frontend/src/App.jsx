@@ -24,11 +24,7 @@ function App() {
 
   <Route 
     path="/signup" 
-    element={
-      !userData 
-        ? <SignUp /> 
-        : <Navigate to="/costomize2" />
-    } 
+    element={<SignUp />} 
   />
 
   <Route 

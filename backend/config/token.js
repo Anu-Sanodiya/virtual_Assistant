@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-const genToken = async (userId) => {
+const genToken =  (userId) => {
     try {
-        const token = await jwt.sign({ userId }, process.env.
+        const token = jwt.sign({ userId }, process.env.
             JWT_SECRET, { expiresIn: "1d" })
         return token
 

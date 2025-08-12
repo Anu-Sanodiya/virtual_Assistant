@@ -23,7 +23,7 @@ const signUp = async (req, res) => {
             name,email, password: hashedPassword,
         })
 
-        const token = await genToken(newuser._id)
+        const token = genToken(newuser._id)
 
         res.cookie("token", token, {
             httpOnly: true,

@@ -12,15 +12,16 @@ const SignIn = () => {
   
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const { serverUrl ,userData, setUserData,loading ,setLoading} = useContext(UserDataContext)
+  const { serverUrl ,userData, setUserData,loading ,setLoading } = useContext(UserDataContext)
   
   const [err, setError] = useState("")
-  const handleSignup = async (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
+    setLoading(true);
     console.log(serverUrl)
     setError('')
     try {
-      let result = await axios.post(`${serverUrl}/api/auth/signin`, {
+      let result = await axios.post(`${serverUrl}/api/auth/login`, {
          email, password
 
       }, { withCredentials: true })
@@ -54,7 +55,7 @@ const SignIn = () => {
     >
       <form
         className="w-[90%] h-[600px] max-w-[500px] bg-[#0000003d] backdrop-blur
-       shadow-lg shadow-black p-6 rounded-lg flex flex-col items-center justify-center gap-2  " onSubmit={handleSignup}>
+       shadow-lg shadow-black p-6 rounded-lg flex flex-col items-center justify-center gap-2  " onSubmit={handleSignIn}>
 
         <h1 className='text-white text-[30px] font-semibold mb-2'>Sign In to <span className='text-gray-800 '>Virtual Assistant</span></h1>
         
