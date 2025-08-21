@@ -15,14 +15,14 @@ const UserContext = ({ children }) => {
 
   const handleCurrentUser = async () => {
     try {
-      const result = await axios.get(`${serverUrl}/api/user/current`, {
+      const result = await axios.get(`${serverUrl}/api/users/current`, {
         withCredentials: true,
       });
       setUserData(result.data);
       setError(null);
     } catch (error) {
       console.error(error);
-      setError("Failed to fetch user data");
+          setError(error.response?.data?.message || error.message || "Failed to fetch user data");
     } finally {
       setLoading(false);
     }

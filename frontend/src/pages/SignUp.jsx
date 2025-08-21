@@ -26,6 +26,7 @@ const SignUp = () => {
         { name, email, password },
         { withCredentials: true }
       );
+      console.log(result.data);
 
       setUserData(result.data);
       setLoading(false);
