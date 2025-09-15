@@ -1,7 +1,10 @@
+import { use } from 'react'
+
 const User = require('../models/user.models')
 const { uploadCloudinary } = require('../config/cloudinary')
 const geminiResponse = require('../gemini')
 const moment  = require('moment')
+
 const getCurrentuser = async (req, res) => {
     try {
         const userId = req.userId
@@ -52,27 +55,139 @@ const UpdateAssistant = async (req, res) => {
     }
 }
 
-const askToAssistant = async (req, res) => {
-    try {
-        const { command } = req.body;
-        const user  = await User.findById(req.userId)
-        const userName  = user.name
 
-        const assistantName  = user.assistantName
-        const result  = await geminiResponse(command, assistantName, userName);
 
-        const jsonMatch = result.match(/{.*?}/);
-        if (jsonMatch) {
-            const jsonResponse = JSON.parse(jsonMatch[0]);
-            const type = jsonResponse.type;
-            return res.status(200).json(jsonResponse);
-        }
+export const asktoAssistant  = async (req, res) => {
+  try {
+    const { command } = req.body;
 
-        return res.status(200).json(result);
-    } catch (error) {
-        console.error('askToAssistant Error:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
+    // fetch user info
+    const user = await User.findById(req.userId);
+    const userName = user.name;
+    const assistantName = user.assistantName;
+
+    // call Gemini API
+    const result = await geminiResponse(command, assistantName, userName);
+
+    // Expecting Gemini to return a JSON block like { "type": "get_time", "value": "" }
+    const jsonMatch = result.match(/{.*?}/);
+    if (!jsonMatch) {
+      return res.status(200).json({
+        type: "general",
+        value: result, // fallback to raw AI response
+      });
     }
-}
 
-module.exports = { getCurrentuser, UpdateAssistant, askToAssistant }
+    const jsonResponse = JSON.parse(jsonMatch[0]);
+    const type = jsonResponse.type
+
+ 
+
+    switch (type) {
+      case "get_date":
+       return res.json({
+        type,
+        userInput:jsonResponse.userInput,
+        response:`current date is ${moment().format("YYYY-MM-DD")}`,
+       })
+       break;
+
+      case "get_time":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: `current time is ${moment().format("HH:mm:ss")}`,
+        })
+        break;
+
+      case "get_day":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: `current day is ${moment().format("dddd")}`,
+        })
+        break;
+
+      case "get_month":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: `current month is ${moment().format("MMMM")}`,
+        })
+        break;
+
+      case "get_year":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: `current year is ${moment().format("YYYY")}`,
+        })
+        break;
+
+      case "google_search":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: `Opening Google search for "${jsonResponse.query || command}"`,
+        });
+
+      case "youtube_search":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: `Searching YouTube for "${jsonResponse.query || command}"`,
+        });
+
+      case "youtube_play":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: `Playing YouTube video: "${jsonResponse.query || command}"`,
+        });
+
+      case "calculator_open":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: jsonResponse.response || "Opening Calculator...",
+        });
+
+      case "instagram_open":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: jsonResponse.response || "Opening Instagram...",
+        });
+
+      case "facebook_open":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response: jsonResponse.response || "Opening Facebook...",
+        });
+
+      case "weather-show":
+        return res.json({
+          type,
+          userInput: jsonResponse.userInput,
+          response:  jsonResponse.response || "Fetching weather info...", // you can plug in weather API here
+        });
+
+      case "general":
+      default:
+        return res.json({
+          type: "general",
+          userInput: jsonResponse.userInput,
+          response: jsonResponse.value || result,
+        });
+    }
+
+   
+  } catch (error) {
+    console.error("geminiresponse Error:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+ 

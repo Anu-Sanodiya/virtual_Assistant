@@ -27,6 +27,22 @@ const UserContext = ({ children }) => {
       setLoading(false);
     }
   };
+  
+   
+  const geminiResponse = async (command) => {
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/users/asktoassistant`,
+        { command },
+        { withCredentials: true }
+      );
+      return result.data;
+    } catch (error) {
+      console.error("there is error in gemini response", error);
+      return null; // ✅ always return something
+    }
+  };
+
 
   useEffect(() => {
     handleCurrentUser();
@@ -47,12 +63,13 @@ const UserContext = ({ children }) => {
         loading,
         setLoading,
         error,
+        geminiResponse
       }}
     >
       {children}
     </UserDataContext.Provider>
   );
-};
+}
 
 export default UserContext;
 

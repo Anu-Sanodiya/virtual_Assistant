@@ -2,10 +2,11 @@ import React, { useContext } from 'react'
 import { UserDataContext } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { useEffect } from 'react'
 const HomePage = () => {
 
-  const { setUserData ,userData, serverUrl } = useContext(UserDataContext)
-const navigate = useNavigate()
+  const { setUserData, userData, serverUrl } = useContext(UserDataContext)
+  const navigate = useNavigate()
   const handleLogout = async () => {
     try {
       const result = await axios.get(`${serverUrl}/api/auth/logout`,
@@ -14,10 +15,24 @@ const navigate = useNavigate()
       setUserData(null);
       navigate('/signin')
 
-    } catch (error) {console.log("there is erroR ON",error)}
+    } catch (error) { console.log("there is erroR ON", error) }
   }
 
-  
+
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    const recognition = new SpeechRecognition();
+    recognition.continous = true;
+    recognition.lag = 'en-US'
+    recognition.onresult = (event) => {
+
+      const transcript = event.results[event.results.length - 1][0].transcript.trim();
+
+      console.log(transcript)
+    }
+    recognition.start();
+  }, [])
+
 
   return (
     <div className='w-full h-[100vh] bg-gradient-to-t from-[black] to-[#000080] flex flex-col justify-center items-center'>

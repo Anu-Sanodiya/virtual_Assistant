@@ -6,6 +6,6 @@ const upload = require('../middlewares/multer')
 
 const userRouter = express.Router();
 userRouter.get('/current', isAuth, getCurrentuser);
-userRouter.put('/assistant', isAuth, upload.single('assistantImage'), UpdateAssistant);
-
+userRouter.put('/update', isAuth, upload.single('assistantImage'), UpdateAssistant);
+userRouter.post('/asktoassistant', isAuth, require('../controllers/user.controller').asktoAssistant);
 module.exports = userRouter;
