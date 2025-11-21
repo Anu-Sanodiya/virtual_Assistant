@@ -13,14 +13,14 @@ function App() {
   return (
 
 <Routes>
-  {/* <Route 
+  <Route 
     path="/" 
     element={
       (userData?.assistantImage && userData?.assistantName) 
         ? <HomePage /> 
         : <Navigate to="/costomize" />
     } 
-  /> */}
+  />
 
   <Route 
     path="/signup" 
@@ -36,16 +36,16 @@ function App() {
     } 
   />
 
-  {/* <Route 
+  <Route 
     path="/costomize" 
     element={
       userData 
         ? <Costomize /> 
         : <Navigate to="/signin" />
     }  
-  /> */}
-  <Route path='/costomize' element={<Costomize/>}></Route>
-  <Route path='/costomize2' element={<Costomize2/>}></Route>
+  />
+  {/* <Route path='/costomize' element={<Costomize/>}></Route> */}
+  {/* <Route path='/costomize2' element={<Costomize2/>}></Route> */}
   <Route path='/' element={<HomePage/>}></Route>
 </Routes>
 

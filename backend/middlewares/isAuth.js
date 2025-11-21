@@ -1,23 +1,15 @@
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
+const User = require("../models/user.model");
 
+exports.isAuthenticated = async (req, res, next) => {
+  const { token } = req.cookies;
+  if (!token) return res.status(401).json({ message: "Not authenticated" });
 
-const isAuth = async (req, res, next) => {
-    try {
-        const token = req.cookies.token
-        if (!token) {
-            return res.status(401).json({
-                message: "token not found"
-            }
-            )
-        }
-        const verifyToken = jwt.verify(token, process.env.JWT_SECRET)
-        req.userId = verifyToken.userId
-        next()
-    } catch (err) {
-        console.log("auth middleware error", err)
-        return res.status(401).json({
-            message: "Is auth error"
-        })
-    }
-}
-module.exports = { isAuth }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id).select("-password");
+    next();
+  } catch (error) {
+    res.status(401).json({ message: "Invalid Token" });
+  }
+};

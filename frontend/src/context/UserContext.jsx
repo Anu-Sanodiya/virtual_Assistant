@@ -4,7 +4,7 @@ import axios from 'axios';
 export const UserDataContext = createContext();
 
 const UserContext = ({ children }) => {
-  const serverUrl = "http://localhost:8000";
+  const serverUrl = "http://localhost:5000";
 
   const [userData, setUserData] = useState(null);
   const [frontendImage, setFrontendImage] = useState(null);
@@ -21,7 +21,7 @@ const UserContext = ({ children }) => {
       setUserData(result.data);
       setError(null);
     } catch (error) {
-      console.error(error);
+      
           setError(error.response?.data?.message || error.message || "Failed to fetch user data");
     } finally {
       setLoading(false);
