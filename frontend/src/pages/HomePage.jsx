@@ -238,10 +238,10 @@ const HomePage = () => {
         </button>
       </div>
 
-      <div className="w-[500px] h-[400px] flex justify-center items-center overflow-hidden 
+      <div className="w-[400px] h-[600px] flex justify-center items-center overflow-hidden 
 rounded-4xl rounded border-4 border-white gap-[10px]">
         <img src={userData?.assistantImage} alt='' className='
-  h-full object-cover '/>
+   h-full w-full object-cover  '/>
       </div>
       <h1 className='text-white mt-2 font-bold'>Hi! I'am {userData?.assistantName}</h1>
       { !aiText &&<img src={user} alt="ai" className='w-[200px]'/>}

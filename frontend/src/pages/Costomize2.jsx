@@ -7,14 +7,15 @@ import { useNavigate } from 'react-router-dom'
 import { IoIosArrowRoundBack } from "react-icons/io";
 const Costomize2 = () => {
   const { userData, backendImage, selectedImage, setUserData, serverUrl, error } = useContext(UserDataContext)
-  const [assistantName, setAssistantName] = useState(userData?.assistantName || " ")
+  const [assistantName, setAssistantName] = useState(userData?.assistantName || "")
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate();
 
   const handleUpdateAssistant = async () => {
+    if (!assistantName.trim()) return;
     setLoading(true)
     try {
-      let formdata = new FormData(); // ✅
+      let formdata = new FormData(); 
 
       formdata.append("assistantName", assistantName)
       if (backendImage) {
@@ -22,10 +23,15 @@ const Costomize2 = () => {
       } else {
         formdata.append("imageurl", selectedImage)
       }
-      const result = await axios.post(`${serverUrl}/api/user/update`, formdata, { withCredentials: true })
+      const result = await axios.post(`${serverUrl}/api/users/update`, formdata, { withCredentials: true })
       console.log(result.data)
+      if (result.data.user) {
+          setUserData(result.data.user); 
+      } else {
+          setUserData(result.data); // Fallback if your API returns just the user object
+      }
       setLoading(false)
-      setUserData(result.data)
+      
       navigate('/')
     }
     catch (error) {
