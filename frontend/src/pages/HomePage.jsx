@@ -6,7 +6,7 @@ import { useRef } from 'react'
 import ai from '../assets/ai.gif'
 import user from '../assets/user.gif'
 import { useEffect } from 'react'
-import {BiMenuAltRight} from "react-icons/bi"
+// import {BiMenuAltRight} from "react-icons/bi"
 
 
 
