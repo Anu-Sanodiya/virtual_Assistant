@@ -15,20 +15,12 @@ const UserContext = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
- const handleCurrentUser = async () => {
-  if (!document.cookie.includes("token")) {
-    setUserData(null);
-    setLoading(false);
-    return;
-  }
-
+const handleCurrentUser = async () => {
   setLoading(true);
-  
   try {
     const result = await axios.get(`${serverUrl}/api/auth/current`, {
       withCredentials: true,
     });
-
     setUserData(result.data.user);
   } catch {
     setUserData(null);
@@ -36,22 +28,21 @@ const UserContext = ({ children }) => {
     setLoading(false);
   }
 };
-
   
-  // const geminiResponse = async (command) => {
-  //   try {
-  //     const result = await axios.post(
-  //       `${serverUrl}/api/users/asktoassistant`,
-  //       { command },
-  //       { withCredentials: true }
-  //     );
-  //     return result.data;
-  //   } catch (error) {
-  //     console.error("Error in Gemini response:", error);
-  //     // Optional: You could set a temporary error state here if you want the UI to know
-  //     return null; 
-  //   }
-  // };
+  const geminiResponse = async (command) => {
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/users/asktoassistant`,
+        { command },
+        { withCredentials: true }
+      );
+      return result.data;
+    } catch (error) {
+      console.error("Error in Gemini response:", error);
+      // Optional: You could set a temporary error state here if you want the UI to know
+      return null; 
+    }
+  };
 
   useEffect(() => {
     handleCurrentUser();
@@ -63,6 +54,7 @@ const UserContext = ({ children }) => {
         serverUrl,
         userData,
         setUserData,
+        geminiResponse,
         loading,
         setLoading,
         error,

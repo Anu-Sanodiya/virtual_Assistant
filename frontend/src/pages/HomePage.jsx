@@ -1,11 +1,9 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useRef, useEffect } from 'react'
 import { UserDataContext } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { useRef } from 'react'
 import ai from '../assets/ai.gif'
 import user from '../assets/user.gif'
-import { useEffect } from 'react'
 // import {BiMenuAltRight} from "react-icons/bi"
 
 
@@ -20,7 +18,7 @@ const HomePage = () => {
 
   const isSpeakingRef = useRef(false);
   const recognitionRef = useRef(null);
-  const isRecognizingRef=useRef(false)
+  const isRecognizingRef = useRef(false)
 
 
 
@@ -35,73 +33,85 @@ const HomePage = () => {
     } catch (error) { console.log("there is erroR ON", error) }
   }
 
-
   const Speak = (text) => {
-    const utterence = new SpeechSynthesisUtterance(text);
-    utterence.lang = 'hi-IN'
-    const voices = window.speechSynthesis.getVoices()
-    if (!voices.length) {
-      synth.onvoiceschanged = () => {
-        voices = synth.getVoices();
-      };
-    }
-    const hindiVoice = voices.find(v => v.lang === 'hi-IN');
-    if (hindiVoice) {
-      utterence.voice = hindiVoice
-    }
-    isSpeakingRef.current = true
+    if (!text) return;
 
-    utterence.onend = () => {
+    const synth = window.speechSynthesis;
+    synth.cancel(); // stop any previous speech
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US"; // or hi-IN if you want Hindi assistant
+
+    const setVoice = () => {
+      const voices = synth.getVoices();
+      const preferred =
+        voices.find(v => v.lang === utterance.lang) ||
+        voices.find(v => v.lang.startsWith("en"));
+
+      if (preferred) utterance.voice = preferred;
+    };
+
+    setVoice();
+    synth.onvoiceschanged = setVoice;
+
+    isSpeakingRef.current = true;
+
+    utterance.onend = () => {
       isSpeakingRef.current = false;
+
       if (recognitionRef.current && !isRecognizingRef.current) {
         try {
           recognitionRef.current.start();
         } catch (err) {
-          if (err.name !== "InvalidStateError") {
-            console.error("Recognition restart error:", err);
-          }
+          if (err.name !== "InvalidStateError") console.error(err);
         }
       }
-    }
-    window.speechSynthesis.speak(utterence)
+    };
 
-  }
+    synth.speak(utterance);
+  };
+
+
+
 
 
   const handleCommand = (data) => {
+    if (!data || !data.response) {
+      console.error("Invalid AI data:", data);
+      return;
+    }
+
+    if (isSpeakingRef.current) return;
+
     const { type, userInput, response } = data;
+
     Speak(response);
 
     switch (type) {
       case "google_search":
         window.open(`https://www.google.com/search?q=${userInput}`, "_blank");
         break;
-
       case "youtube_play":
       case "youtube_search":
         window.open(`https://www.youtube.com/results?search_query=${userInput}`, "_blank");
         break;
-
       case "calculator_open":
         window.open("calculator://");
         break;
-
       case "instagram_open":
         window.open("https://www.instagram.com", "_blank");
         break;
-
       case "facebook_open":
         window.open("https://www.facebook.com", "_blank");
         break;
-
       case "weather-show":
         window.open(`https://www.google.com/search?q=weather+${userInput}`, "_blank");
         break;
-
       default:
         console.warn("Unknown command type:", type);
     }
   };
+
 
 
   useEffect(() => {
@@ -143,7 +153,7 @@ const HomePage = () => {
       setlistening(false);
 
       if (!isSpeakingRef.current) {
-        setTimeout(() => safeRecognition(), 1000); // avoid rapid restart
+        setTimeout(() => safeRecognition(), 7000); // avoid rapid restart
       }
     };
 
@@ -158,7 +168,12 @@ const HomePage = () => {
     };
 
     recognition.onresult = async (event) => {
-      const transcript = event.results[event.results.length - 1][0].transcript.trim();
+      // const transcript = event.results[event.results.length - 1][0].transcript.trim();
+      const result = event.results[event.results.length - 1];
+      if (!result.isFinal) return;
+
+      const transcript = result[0].transcript.trim();
+
       console.log("heard:", transcript);
 
       if (userData?.assistantName && transcript.toLowerCase().includes(userData.assistantName.toLowerCase())) {
@@ -198,11 +213,11 @@ const HomePage = () => {
       recognition.onstart = recognition.onend = recognition.onerror = recognition.onresult = null;
       clearInterval(fallback);
     };
-  }, [userData]);
+  }, [userData, geminiResponse]);
 
 
 
-  
+
 
 
 
@@ -225,9 +240,7 @@ const HomePage = () => {
 
         <button
           type="submit"
-          className="
-      min-w-[180px] sm:min-w-[200px] md:min-w-[250px]
-      h-[40px] sm:h-[45px] md:h-[50px]
+          className="min-w-[180px] sm:min-w-[200px] md:min-w-[250px] h-[40px] sm:h-[45px] md:h-[50px]
       text-[16px] sm:text-[18px] md:text-[19px]
       text-black font-semibold bg-white rounded-full
       transition-all duration-300
@@ -244,10 +257,10 @@ rounded-4xl rounded border-4 border-white gap-[10px]">
    h-full w-full object-cover  '/>
       </div>
       <h1 className='text-white mt-2 font-bold'>Hi! I'am {userData?.assistantName}</h1>
-      { !aiText &&<img src={user} alt="ai" className='w-[200px]'/>}
-      { aiText &&<img src={ai} alt="ai" className='w-[200px]'/>}
-      
-      <h1 className='text-white'>{userText?userText:aiText?aiText:null}</h1>
+      {!aiText && <img src={user} alt="ai" className='w-[200px]' />}
+      {aiText && <img src={ai} alt="ai" className='w-[200px]' />}
+
+      <h1 className='text-white'>{userText ? userText : aiText ? aiText : null}</h1>
     </div>
   )
 }
